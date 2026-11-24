@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khan's Karate Academy (KKA) — Dojo Management Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-martial {
+      font-family: 'Cinzel', serif;
+    }
+    .glow-red {
+      box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.4);
+    }
+    .glow-gold {
+      box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.35);
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-red-600 selection:text-white">
+
+  <!-- TOP NAVBAR -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-amber-600 flex items-center justify-center shadow-lg shadow-red-950 text-2xl font-black font-martial text-white border border-red-400/30">
+          館
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-martial font-bold text-xl tracking-wider text-white">KHAN'S KARATE ACADEMY</span>
+            <span class="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase rounded-full bg-red-900/50 text-red-300 border border-red-700/50">PROTOTYPE</span>
+          </div>
+          <p class="text-xs text-slate-400">Traditional Shotokan Martial Arts & Dojo Portal</p>
+        </div>
+      </div>
+
+      <!-- Auth Action / Status -->
+      <div id="navUserBar" class="flex items-center space-x-3">
+        <!-- Will be populated dynamically -->
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- HERO BANNER -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-red-950/60 via-slate-900 to-slate-900 border border-red-900/40 p-8 sm:p-10 mb-8 glow-red">
+      <div class="relative z-10 max-w-3xl">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-900/60 border border-red-600/40 text-red-200 text-xs font-semibold mb-4">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Live Prototype Backend Active (Express 5 + TypeScript)</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black font-martial text-white tracking-tight leading-tight mb-4">
+          Discipline. Honor. <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-amber-400">Mastery.</span>
+        </h1>
+        <p class="text-slate-300 text-base sm:text-lg mb-6 leading-relaxed">
+          Welcome to the Khan's Karate Academy interactive prototype. Test authentic workflows for <strong>Students</strong>, <strong>Instructors</strong>, and <strong>Grandmasters</strong>: promote belt ranks, record attendance, track syllabus katas, and evaluate role permissions.
+        </p>
+
+        <!-- QUICK DEMO LOGIN BUTTONS -->
+        <div class="bg-slate-950/80 backdrop-blur p-4 rounded-2xl border border-slate-800">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> One-Click Demo Role Login
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button onclick="demoLogin('student1', 'StrongP@ssw0rd!')" class="flex flex-col items-start p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500 transition group text-left">
+              <span class="text-xs font-bold text-emerald-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                <i data-lucide="user" class="w-3 h-3"></i> Student
+              </span>
+              <span class="text-sm font-semibold text-white">STUDENT-001</span>
+              <span class="text-[10px] text-slate-400">Green Belt Rank</span>
+            </button>
+
+            <button onclick="demoLogin('instructor1', 'StrongP@ssw0rd!')" class="flex flex-col items-start p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-blue-500 transition group text-left">
+              <span class="text-xs font-bold text-blue-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                <i data-lucide="award" class="w-3 h-3"></i> Instructor
+              </span>
+              <span class="text-sm font-semibold text-white">Sensei Tariq</span>
+              <span class="text-[10px] text-slate-400">Attendance & Grading</span>
+            </button>
+
+            <button onclick="demoLogin('master1', 'StrongP@ssw0rd!')" class="flex flex-col items-start p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-amber-500 transition group text-left">
+              <span class="text-xs font-bold text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                <i data-lucide="crown" class="w-3 h-3"></i> Master
+              </span>
+              <span class="text-sm font-semibold text-white">Grandmaster Khan</span>
+              <span class="text-[10px] text-slate-400">Full Dojo Promotions</span>
+            </button>
+
+            <button onclick="demoLogin('president1', 'StrongP@ssw0rd!')" class="flex flex-col items-start p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-purple-500 transition group text-left">
+              <span class="text-xs font-bold text-purple-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> President
+              </span>
+              <span class="text-sm font-semibold text-white">Academy President</span>
+              <span class="text-[10px] text-slate-400">Master Scope Executive</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC CONTENT AREA -->
+    <div id="contentView">
+      <!-- Populated based on login state -->
+    </div>
+
+  </main>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none max-w-md w-full bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center space-x-3">
+    <div id="toastIcon" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"></div>
+    <div class="flex-1">
+      <h4 id="toastTitle" class="text-sm font-bold"></h4>
+      <p id="toastMessage" class="text-xs text-slate-300"></p>
+    </div>
+  </div>
+
+  <script>
+    // Global State
+    let currentUser = null;
+    let currentToken = null;
+    let studentsData = [];
+    let classesData = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      checkActiveSession();
+    });
+
+    function showToast(title, message, isSuccess = true) {
+      const toast = document.getElementById('toast');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastTitle.innerText = title;
+      toastMessage.innerText = message;
+      toastIcon.className = `w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isSuccess ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' : 'bg-red-950 text-red-400 border border-red-700'}`;
+      toastIcon.innerHTML = isSuccess ? '<i data-lucide="check-circle" class="w-5 h-5"></i>' : '<i data-lucide="alert-triangle" class="w-5 h-5"></i>';
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 4000);
+    }
+
+    async function checkActiveSession() {
+      const savedToken = localStorage.getItem('kka_token');
+      const savedUser = localStorage.getItem('kka_user');
+
+      if (savedToken && savedUser) {
+        currentUser = JSON.parse(savedUser);
+        currentToken = savedToken;
+        renderNav();
+        loadDashboard();
+      } else {
+        renderNav();
+        renderGuestLanding();
+      }
+    }
+
+    async function demoLogin(username, password) {
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          currentUser = data.user;
+          currentToken = data.accessToken;
+          localStorage.setItem('kka_token', currentToken);
+          localStorage.setItem('kka_user', JSON.stringify(currentUser));
+
+          showToast('Login Successful', `Authenticated as ${currentUser.name} (${currentUser.role})`);
+          renderNav();
+          loadDashboard();
+        } else {
+          showToast('Login Failed', data.error || 'Authentication error', false);
+        }
+      } catch (err) {
+        showToast('Connection Error', err.message, false);
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`
+          }
+        });
+      } catch (_) {}
+
+      currentUser = null;
+      currentToken = null;
+      localStorage.removeItem('kka_token');
+      localStorage.removeItem('kka_user');
+      showToast('Logged Out', 'Your session has been securely invalidated.');
+      renderNav();
+      renderGuestLanding();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById('navUserBar');
+      if (currentUser) {
+        nav.innerHTML = `
+          <div class="flex items-center space-x-3 bg-slate-800/80 border border-slate-700 px-4 py-2 rounded-2xl">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center font-bold text-sm text-white">
+              ${currentUser.name[0]}
+            </div>
+            <div class="text-left hidden sm:block">
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                ${currentUser.name}
+                <span class="px-1.5 py-0.2 text-[9px] font-bold rounded uppercase bg-red-950 text-red-300 border border-red-800">${currentUser.role}</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Dojo Session Active</p>
+            </div>
+            <button onclick="logout()" title="Logout" class="ml-2 p-1.5 rounded-lg bg-slate-700/60 hover:bg-red-900/60 text-slate-300 hover:text-red-200 transition">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+      } else {
+        nav.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center gap-1.5 text-xs text-slate-400 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> Guest Mode
+            </span>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    async function loadDashboard() {
+      const container = document.getElementById('contentView');
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-16">
+          <div class="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p class="text-sm text-slate-400">Loading ${currentUser.role} Dojo Dashboard...</p>
+        </div>
+      `;
+
+      try {
+        // Fetch Students and Classes
+        const [studentsRes, classesRes, profileRes] = await Promise.all([
+          fetch('/api/academy/students', { headers: { 'Authorization': `Bearer ${currentToken}` } }),
+          fetch('/api/academy/classes', { headers: { 'Authorization': `Bearer ${currentToken}` } }),
+          fetch('/api/academy/my-profile', { headers: { 'Authorization': `Bearer ${currentToken}` } })
+        ]);
+
+        if (!studentsRes.ok || !classesRes.ok) {
+          throw new Error('Failed to load dojo data. Session may have expired.');
+        }
+
+        const studentsDataResp = await studentsRes.json();
+        const classesDataResp = await classesRes.json();
+        const profileDataResp = await profileRes.json();
+
+        studentsData = studentsDataResp.students || [];
+        classesData = classesDataResp.classes || [];
+
+        if (currentUser.role === 'STUDENT') {
+          renderStudentDashboard(profileDataResp.profile || studentsData[0]);
+        } else if (currentUser.role === 'INSTRUCTOR') {
+          renderInstructorDashboard(profileDataResp.profile);
+        } else {
+          // MASTER or PRESIDENT
+          renderMasterDashboard(profileDataResp.profile);
+        }
+      } catch (err) {
+        container.innerHTML = `
+          <div class="bg-red-950/40 border border-red-800/60 p-6 rounded-2xl text-center">
+            <p class="text-red-300 font-semibold mb-2">Error loading dashboard: ${err.message}</p>
+            <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-500 transition">Sign Out and Re-authenticate</button>
+          </div>
+        `;
+      }
+    }
+
+    // STUDENT DASHBOARD
+    function renderStudentDashboard(student) {
+      const container = document.getElementById('contentView');
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- STUDENT HEADER CARD -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div class="flex items-center space-x-5">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-3xl font-martial font-bold text-white shadow-xl shadow-emerald-950">
+                🥋
+              </div>
+              <div>
+                <div class="flex items-center space-x-3">
+                  <h2 class="text-2xl font-bold text-white font-martial">${student.name}</h2>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold" style="background-color: ${student.beltColor}25; color: ${student.beltColor}; border: 1px solid ${student.beltColor}60;">
+                    ${student.currentBelt} (${student.kyuRank})
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Student ID: <span class="text-slate-200 font-mono">${student.studentId}</span> • Shotokan Traditional Division</p>
+              </div>
+            </div>
+
+            <!-- Promotion eligibility pill -->
+            <div class="bg-slate-950 border border-slate-800 px-5 py-3 rounded-2xl flex items-center space-x-3">
+              <div class="w-3 h-3 rounded-full ${student.eligibleForGrading ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}"></div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Grading Exam Status</p>
+                <p class="text-sm font-bold ${student.eligibleForGrading ? 'text-emerald-400' : 'text-amber-400'}">
+                  ${student.eligibleForGrading ? 'Eligible for Next Belt Exam' : 'Requirements In Progress'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATS GRID -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Attendance Rate</span>
+                <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-400"></i>
+              </div>
+              <div class="text-3xl font-black text-white mb-2">${student.attendancePercent}%</div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full" style="width: ${student.attendancePercent}%"></div>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">${student.totalClasses} total classes attended</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Next Belt Exam Date</span>
+                <i data-lucide="clock" class="w-5 h-5 text-amber-400"></i>
+              </div>
+              <div class="text-2xl font-black text-amber-300 mb-2">${student.nextGradingDate}</div>
+              <p class="text-xs text-slate-400">Central Honbu Dojo • Master Examination Panel</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Mastered Katas</span>
+                <i data-lucide="target" class="w-5 h-5 text-blue-400"></i>
+              </div>
+              <div class="text-3xl font-black text-white mb-2">${student.katasMastered.length} Form(s)</div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                ${student.katasMastered.map(k => `<span class="px-2 py-0.5 rounded-md bg-blue-950/70 border border-blue-800 text-blue-300 text-[10px] font-semibold">${k}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- SENSEI REMARKS & SCHEDULE -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+              <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-4 h-4 text-red-400"></i> Sensei Notes & Feedback
+              </h3>
+              <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 text-sm leading-relaxed italic">
+                "${student.instructorNotes}"
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+              <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i> Active Batch Schedules
+              </h3>
+              <div class="space-y-3">
+                ${classesData.map(c => `
+                  <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <h4 class="text-sm font-bold text-white">${c.title}</h4>
+                      <p class="text-xs text-slate-400">${c.time} • ${c.instructor}</p>
+                    </div>
+                    <span class="px-2 py-1 bg-slate-900 text-slate-300 border border-slate-800 rounded-lg text-xs font-mono font-bold">${c.attendeesCount} enrolled</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // INSTRUCTOR DASHBOARD
+    function renderInstructorDashboard(profile) {
+      const container = document.getElementById('contentView');
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- INSTRUCTOR HEADER -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div class="flex items-center space-x-5">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-3xl font-martial font-bold text-white shadow-xl shadow-blue-950">
+                🥋
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-white font-martial">Sensei Instructor Portal</h2>
+                <p class="text-xs text-slate-400 mt-1">${profile.name} • ${profile.rank} • Attendance & Syllabus Coordinator</p>
+              </div>
+            </div>
+            <div class="px-4 py-2 rounded-2xl bg-blue-950/50 border border-blue-700/50 text-blue-300 text-xs font-bold">
+              Active Session: Daily Class Operations
+            </div>
+          </div>
+
+          <!-- ATTENDANCE & ROSTER CARD -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i data-lucide="check-square" class="w-5 h-5 text-blue-400"></i> Dojo Class Attendance & Performance
+                </h3>
+                <p class="text-xs text-slate-400">Record real-time attendance and examine belt grading readiness</p>
+              </div>
+            </div>
+
+            <!-- TABLE OF STUDENTS -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="py-3 px-4">Student</th>
+                    <th class="py-3 px-4">Current Belt</th>
+                    <th class="py-3 px-4">Attendance</th>
+                    <th class="py-3 px-4">Exam Ready?</th>
+                    <th class="py-3 px-4 text-right">Attendance Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-sm">
+                  ${studentsData.map(s => `
+                    <tr class="hover:bg-slate-800/40 transition">
+                      <td class="py-3.5 px-4">
+                        <div class="font-bold text-white">${s.name}</div>
+                        <div class="text-xs text-slate-400 font-mono">${s.studentId}</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style="background-color: ${s.beltColor}25; color: ${s.beltColor}; border: 1px solid ${s.beltColor}60;">
+                          ${s.currentBelt}
+                        </span>
+                      </td>
+                      <td class="py-3.5 px-4 font-mono font-semibold text-slate-200">
+                        ${s.attendancePercent}% (${s.totalClasses} classes)
+                      </td>
+                      <td class="py-3.5 px-4">
+                        ${s.eligibleForGrading 
+                          ? '<span class="inline-flex items-center gap-1 text-emerald-400 font-bold text-xs"><i data-lucide="check" class="w-3.5 h-3.5"></i> Ready</span>'
+                          : '<span class="text-slate-500 font-semibold text-xs">Needs Classes</span>'}
+                      </td>
+                      <td class="py-3.5 px-4 text-right">
+                        <button onclick="markAttendance('${s.studentId}', 'present')" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-xs font-bold transition">
+                          + Mark Present
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // MASTER / PRESIDENT DASHBOARD
+    function renderMasterDashboard(profile) {
+      const container = document.getElementById('contentView');
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- MASTER HEADER -->
+          <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 border border-amber-900/40 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 glow-gold">
+            <div class="flex items-center space-x-5">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-3xl font-martial font-bold text-white shadow-xl shadow-amber-950">
+                🥋
+              </div>
+              <div>
+                <div class="flex items-center space-x-3">
+                  <h2 class="text-2xl font-bold text-white font-martial">${currentUser.role === 'MASTER' ? 'Grandmaster Control Center' : 'President Executive Console'}</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-amber-950 text-amber-300 border border-amber-700">
+                    Highest Authority
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Khan's Karate Academy • Full Belt Promotion & Dojos Oversight</p>
+              </div>
+            </div>
+            <div class="px-4 py-2 rounded-2xl bg-amber-950/60 border border-amber-700/60 text-amber-200 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="shield" class="w-4 h-4 text-amber-400"></i> Full Promotion Clearance
+            </div>
+          </div>
+
+          <!-- DOJO METRICS -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+              <span class="text-xs text-slate-400 font-bold uppercase">Total Students</span>
+              <div class="text-3xl font-black text-white mt-1">148</div>
+              <span class="text-[10px] text-emerald-400 font-bold">+12 this month</span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+              <span class="text-xs text-slate-400 font-bold uppercase">Eligible for Belt Exam</span>
+              <div class="text-3xl font-black text-amber-300 mt-1">26</div>
+              <span class="text-[10px] text-slate-400 font-bold">Exam on Dec 15</span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+              <span class="text-xs text-slate-400 font-bold uppercase">Instructors Active</span>
+              <div class="text-3xl font-black text-blue-300 mt-1">6</div>
+              <span class="text-[10px] text-slate-400 font-bold">3 Honbu Dojo / 3 Branch</span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+              <span class="text-xs text-slate-400 font-bold uppercase">Avg. Attendance</span>
+              <div class="text-3xl font-black text-emerald-400 mt-1">91.4%</div>
+              <span class="text-[10px] text-emerald-400 font-bold">Optimal dojo capacity</span>
+            </div>
+          </div>
+
+          <!-- BELT PROMOTION MANAGEMENT SECTION -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i data-lucide="award" class="w-5 h-5 text-amber-400"></i> Student Belt Rank Promotions
+                </h3>
+                <p class="text-xs text-slate-400">Click "Promote to Next Belt" to advance a student to the next Kyu/Dan rank in real time.</p>
+              </div>
+            </div>
+
+            <!-- PROMOTION TABLE -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="py-3 px-4">Student</th>
+                    <th class="py-3 px-4">Current Belt</th>
+                    <th class="py-3 px-4">Attendance</th>
+                    <th class="py-3 px-4">Mastered Katas</th>
+                    <th class="py-3 px-4 text-right">Master Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-sm">
+                  ${studentsData.map(s => `
+                    <tr class="hover:bg-slate-800/40 transition">
+                      <td class="py-4 px-4">
+                        <div class="font-bold text-white">${s.name}</div>
+                        <div class="text-xs text-slate-400 font-mono">${s.studentId}</div>
+                      </td>
+                      <td class="py-4 px-4">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-sm" style="background-color: ${s.beltColor}25; color: ${s.beltColor}; border: 1px solid ${s.beltColor}60;">
+                          ${s.currentBelt} (${s.kyuRank})
+                        </span>
+                      </td>
+                      <td class="py-4 px-4">
+                        <span class="font-bold text-slate-200">${s.attendancePercent}%</span>
+                        <div class="text-[11px] text-slate-400">${s.totalClasses} classes</div>
+                      </td>
+                      <td class="py-4 px-4">
+                        <div class="flex flex-wrap gap-1">
+                          ${s.katasMastered.map(k => `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-medium">${k}</span>`).join('')}
+                        </div>
+                      </td>
+                      <td class="py-4 px-4 text-right">
+                        <button onclick="promoteStudent('${s.studentId}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 text-white font-bold text-xs shadow-md shadow-red-950 transition flex items-center gap-1.5 ml-auto">
+                          <i data-lucide="chevrons-up" class="w-4 h-4"></i> Promote Belt ⬆️
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // ACTIONS
+    async function promoteStudent(studentId) {
+      try {
+        const res = await fetch('/api/academy/promote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({ studentId })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Promotion Approved!', data.message);
+          loadDashboard();
+        } else {
+          showToast('Promotion Error', data.error || data.message, false);
+        }
+      } catch (err) {
+        showToast('Error', err.message, false);
+      }
+    }
+
+    async function markAttendance(studentId, status) {
+      try {
+        const res = await fetch('/api/academy/attendance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({ studentId, status })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Attendance Logged', data.message);
+          loadDashboard();
+        } else {
+          showToast('Error', data.error, false);
+        }
+      } catch (err) {
+        showToast('Error', err.message, false);
+      }
+    }
+
+    // GUEST LANDING
+    function renderGuestLanding() {
+      const container = document.getElementById('contentView');
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-6">
+          <div class="space-y-6">
+            <h2 class="text-3xl font-black font-martial text-white tracking-wide">
+              Shotokan Traditional Excellence
+            </h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Khan's Karate Academy has cultivated discipline, martial spirit, and physical mastery for over 25 years. This unified web portal coordinates belt grading, class attendance tracking, and syllabus evaluation for every student from White Belt to Sandan Black Belt.
+            </p>
+            <div class="grid grid-cols-2 gap-4 pt-2">
+              <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                <div class="text-xl font-black text-amber-400">8 Ranks</div>
+                <div class="text-xs text-slate-400">Kyu-to-Dan Belt System</div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                <div class="text-xl font-black text-emerald-400">3 Dojo Portals</div>
+                <div class="text-xs text-slate-400">Student, Sensei & Master</div>
+              </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
+              👉 Click any <strong>One-Click Demo Role</strong> above to immediately enter as a Student, Instructor, or Grandmaster!
+            </div>
+          </div>
+
+          <!-- MANUAL CREDENTIALS CARD -->
+          <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-2 font-martial flex items-center gap-2">
+              <i data-lucide="lock" class="w-4 h-4 text-red-500"></i> Dojo Portal Login
+            </h3>
+            <p class="text-xs text-slate-400 mb-6">Enter your student ID or instructor username</p>
+
+            <form onsubmit="handleManualLogin(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5">Identifier / Username</label>
+                <input id="inputUser" type="text" placeholder="e.g. student1, instructor1, master1, president1" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:border-red-500 focus:outline-none transition" required>
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5">Password</label>
+                <input id="inputPass" type="password" value="StrongP@ssw0rd!" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:border-red-500 focus:outline-none transition" required>
+                <p class="text-[11px] text-slate-500 mt-1">Default demo password: <span class="font-mono text-slate-400">StrongP@ssw0rd!</span></p>
+              </div>
+              <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-sm shadow-lg shadow-red-950 transition">
+                Sign In to Dojo
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function handleManualLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('inputUser').value.trim();
+      const pass = document.getElementById('inputPass').value;
+      demoLogin(user, pass);
+    }
+  </script>
+</body>
+</html>

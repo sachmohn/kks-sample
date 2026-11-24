@@ -1,64 +1,61 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from './jwt';
 import { sessionStore } from './session';
-import { AccessTokenPayload, Role } from './types';
+import { Role } from './types';
 
-// Extend Express Request interface to include authenticated user
+// Extend Express Request interface to include authenticated user details
 declare global {
   namespace Express {
     interface Request {
-      user?: AccessTokenPayload;
-      token?: string;
+      user?: {
+        sub: string;
+        username: string;
+        role: Role;
+        familyId?: string;
+      };
     }
   }
 }
 
 /**
- * Authentication middleware:
- * Validates JWT access token from Authorization header (Bearer schema).
- * Verifies signature, expiration, and checks server-side session revocation.
+ * Token authentication middleware:
+ * Extracts Bearer token from the Authorization header and verifies it.
+ * Verifies that the associated session has not been revoked.
  */
 export function authenticateToken(req: Request, res: Response, next: NextFunction): void {
-  const authHeader = req.headers.authorization;
-  let token: string | undefined;
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else if (req.headers['x-access-token']) {
-    token = String(req.headers['x-access-token']).trim();
-  }
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
   if (!token) {
     res.status(401).json({
-      error: 'Access token required',
-      message: 'Authorization header with Bearer token is missing',
+      error: 'Unauthorized',
+      message: 'Access token is missing or malformed',
     });
     return;
   }
 
-  const verification = verifyAccessToken(token);
+  const result = verifyAccessToken(token);
 
-  if (!verification.valid) {
-    if (verification.expired) {
-      res.status(401).json({
-        error: 'Token expired',
-        message: 'Access token has expired',
-      });
-      return;
-    }
+  if (result.expired) {
+    res.status(401).json({
+      error: 'Token expired',
+      message: 'Access token has expired',
+    });
+    return;
+  }
 
+  if (!result.valid || !result.payload) {
     res.status(401).json({
       error: 'Invalid token',
-      message: verification.error || 'Token verification failed or token was tampered with',
+      message: 'Access token signature or format is invalid',
     });
     return;
   }
 
-  const payload = verification.payload!;
+  const payload = result.payload;
 
-  // Server-side session revocation check (supports logout and replay attack invalidation)
-  const sessionId = payload.sessionId || payload.familyId;
-  if (sessionId && sessionStore.isRevoked(sessionId)) {
+  // Check if session has been revoked (e.g. after logout or replay attack detection)
+  if (payload.familyId && sessionStore.isRevoked(payload.familyId)) {
     res.status(401).json({
       error: 'Token has been revoked',
       message: 'The session for this token has been revoked or logged out',
@@ -66,17 +63,25 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  req.user = payload;
-  req.token = token;
+  req.user = {
+    sub: payload.sub,
+    username: payload.username,
+    role: payload.role,
+    familyId: payload.familyId,
+  };
+
   next();
 }
 
 /**
  * Role-based authorization middleware:
  * Enforces role requirement strictly on protected endpoints.
- * Returns 401/403 if the user does not possess the required role.
+ * Supports a single Role or an array of allowed Roles.
+ * Returns 401/403 if the user does not possess an allowed role.
  */
-export function requireRole(requiredRole: Role) {
+export function requireRole(requiredRole: Role | Role[]) {
+  const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
@@ -86,11 +91,11 @@ export function requireRole(requiredRole: Role) {
       return;
     }
 
-    if (req.user.role !== requiredRole) {
+    if (!allowedRoles.includes(req.user.role)) {
       const statusCode = process.env.ROLE_REJECTION_STATUS === '403' ? 403 : 401;
       res.status(statusCode).json({
         error: 'Forbidden: insufficient role permissions',
-        message: `Access denied. Endpoint requires role ${requiredRole}, but user has role ${req.user.role}`,
+        message: `Access denied. Endpoint requires role ${allowedRoles.join(' or ')}, but user has role ${req.user.role}`,
         requiredRole,
         userRole: req.user.role,
       });

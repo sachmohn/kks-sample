@@ -21,10 +21,11 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
     expect(resolved).toBe(Role.MASTER);
   });
 
-  test('2. Wrong-role JWT rejection (returns 401/403)', async () => {
+  test('2. Wrong-role JWT rejection (returns 401)', async () => {
     // Student trying to access master dashboard
     const loginRes = await request(app)
       .post('/api/auth/login')
+      .set('X-Forwarded-For', '198.51.100.1')
       .send({ username: 'student1', password: 'StrongP@ssw0rd!' });
     expect(loginRes.status).toBe(200);
 
@@ -33,7 +34,7 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
     const res = await request(app)
       .get('/api/master/dashboard')
       .set('Authorization', `Bearer ${studentToken}`);
-    expect([401, 403]).toContain(res.status);
+    expect(res.status).toBe(401);
   });
 
   test('3. Expired JWT rejection (returns 401)', async () => {
@@ -51,6 +52,7 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
   test('4. Tampered JWT rejection (returns 401)', async () => {
     const loginRes = await request(app)
       .post('/api/auth/login')
+      .set('X-Forwarded-For', '198.51.100.2')
       .send({ username: 'student1', password: 'StrongP@ssw0rd!' });
     const validToken = loginRes.body.accessToken;
 
@@ -71,6 +73,7 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
     for (let i = 0; i < 10; i++) {
       const res = await request(app)
         .post('/api/auth/login')
+        .set('X-Forwarded-For', '198.51.100.98')
         .send({ username: 'student1', password: 'WrongPassword!' });
       if (res.status === 429) {
         rateLimited = true;
@@ -94,6 +97,9 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
       .set('X-Forwarded-For', '198.51.100.10')
       .send({ username: 'student1', password: 'StrongP@ssw0rd!' });
     expect(loginRes.status).toBe(200);
+
+    const decodedAccess = jwt.decode(loginRes.body.accessToken) as jwt.JwtPayload;
+    expect(decodedAccess.exp! - decodedAccess.iat!).toBe(28800);
 
     const refreshToken = loginRes.body.refreshToken;
     expect(refreshToken).toBeDefined();
@@ -132,6 +138,12 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
       .get('/api/student/dashboard')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(dashAfter.status).toBe(401);
+
+    // Refresh after logout -> 401
+    const refreshAfter = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', [`refreshToken=${refreshToken}`]);
+    expect(refreshAfter.status).toBe(401);
   });
 
   test('9. Master logout revocation test (post-logout request returns 401)', async () => {
@@ -156,6 +168,11 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
       .get('/api/master/dashboard')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(dashAfter.status).toBe(401);
+
+    const refreshAfter = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', [`refreshToken=${refreshToken}`]);
+    expect(refreshAfter.status).toBe(401);
   });
 
   test('10. Instructor logout revocation test (post-logout request returns 401)', async () => {
@@ -180,6 +197,11 @@ describe('Builder Self-Verification Test Suite (Section 1 Readiness)', () => {
       .get('/api/instructor/dashboard')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(dashAfter.status).toBe(401);
+
+    const refreshAfter = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', [`refreshToken=${refreshToken}`]);
+    expect(refreshAfter.status).toBe(401);
   });
 
   test('11. Cookie security verification (checks HttpOnly, Secure, SameSite, and Path response attributes)', async () => {
